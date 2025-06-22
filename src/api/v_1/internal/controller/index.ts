@@ -1,10 +1,8 @@
 import * as express from 'express';
 import cors from 'cors';
 import { Logger } from '../../../../helpers/logger';
-import { CommonController } from './common.controller';
 import { internalOptions } from '../../../../helpers/cors';
-import { AuthController } from './auth.controller';
-import { UserController } from './user.controller';
+import { commonRoutes, authRoutes, userRoutes } from '../routes';
 
 import fileUpload from 'express-fileupload';
 
@@ -26,10 +24,9 @@ export class ApiController {
   }
 
   private InitApiRoutes(): void {
-    this.router.use('/common', new CommonController().router);
-    this.router.use('/auth', new AuthController().router);
-
-    this.router.use('/user', new UserController().router);
+    this.router.use('/common', commonRoutes);
+    this.router.use('/auth', authRoutes);
+    this.router.use('/user', userRoutes);
 
     this.router.use('*', (req: express.Request, res: express.Response): express.Response => {
       try {

@@ -6,62 +6,57 @@ import { CommonService } from '../services/common.service';
 import { Db } from '../../../../database/db';
 
 export class CommonController {
-  public router: express.Router;
-
   constructor() {
     Logger.info('Common controller initialized...');
-    this.router = express.Router();
-    this.CommonRouter();
   }
 
-  private CommonRouter(): void {
-    this.router.get('/status', (req: Request, res: Response) => {
-      let body;
-      try {
-        const service = new CommonService();
+  // Health status handler
+  public getHealthStatus = (req: Request, res: Response): void => {
+    let body;
+    try {
+      const service = new CommonService();
+      const response = service.GetHealthStatus();
 
-        const response = service.GetHealthStatus();
+      body = {
+        data: response,
+      };
+    } catch (error) {
+      genericError(error, res);
+    }
+    res.json(body);
+  };
 
-        body = {
-          data: response,
-        };
-      } catch (error) {
-        genericError(error, res);
-      }
-      res.json(body);
-    });
+  // Upload file handler
+  public uploadFile = async (req: Request, res: Response): Promise<void> => {
+    let body;
+    try {
+      const service = new CommonService();
+      const response = await service.UploadImage(req.files, req.body.path);
 
-    this.router.post('/upload-file', async (req: Request, res: Response) => {
-      let body;
-      try {
-        const service = new CommonService();
+      body = {
+        data: response,
+      };
+    } catch (error) {
+      genericError(error, res);
+    }
+    res.json(body);
+  };
 
-        const response = await service.UploadImage(req.files, req.body.path);
+  // Convert to base64 handler
+  public convertToBase64 = async (req: Request, res: Response): Promise<void> => {
+    let body;
+    try {
+      const { imageUrl } = req.body;
+      const response = await fetch(imageUrl);
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
 
-        body = {
-          data: response,
-        };
-      } catch (error) {
-        genericError(error, res);
-      }
-      res.json(body);
-    });
-
-    this.router.post('/convert-to-base64', async (req: Request, res: Response) => {
-      let body;
-      try {
-        const { imageUrl } = req.body;
-        const response = await fetch(imageUrl);
-        const buffer = await response.arrayBuffer();
-        const base64 = Buffer.from(buffer).toString('base64');
-
-        body = {
-          data: 'data:image/png;base64, ' + base64,
-        };
-      } catch (error) {
-        genericError(error, res);
-      }
-      res.json(body);
-    });
-  }
+      body = {
+        data: 'data:image/png;base64, ' + base64,
+      };
+    } catch (error) {
+      genericError(error, res);
+    }
+    res.json(body);
+  };
 }
