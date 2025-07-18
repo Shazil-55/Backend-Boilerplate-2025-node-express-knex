@@ -24,11 +24,7 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    Logger.info('AuthService.GoogleLogin');
-
     try {
-      Logger.info('========');
-
       const googleUser = await handleGoogleCallback(code);
       Logger.info('AuthService.GoogleUserData', { googleUser });
       if (!googleUser) {
@@ -39,8 +35,6 @@ export class AuthService {
       let user = await this.db.v1.User.GetUserByEmail(googleUser.email);
 
       if (!user) {
-        // Create new user if doesn't exist
-        Logger.info('3333333');
         const newUser = {
           firstName: googleUser.given_name,
           lastName: googleUser.family_name,
@@ -49,7 +43,7 @@ export class AuthService {
           socialLogin: true,
           role: UserTypes.User,
         };
-        Logger.info('4444444');
+
         const userId = await this.db.v1.Auth.CreateUser(newUser);
         if (!userId) {
           throw new AppError(500, 'Failed to create user');

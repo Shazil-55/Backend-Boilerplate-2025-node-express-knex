@@ -5,9 +5,9 @@ import helmet from 'helmet';
 import xss from 'xss-clean';
 import SwaggerUI from 'swagger-ui-express';
 import SwaggerDocs from './swagger.json';
-import { ApiController } from './src/api/v_1/internal/controller';
 import { Db } from './src/database/db';
 import { SeedsController } from './src/seeds/seeds.controller';
+import { ApiRouter } from './src/api/v_1/internal/routes';
 class App {
   constructor() {
     this.app = express();
@@ -50,7 +50,7 @@ class App {
   private routes(): void {
     Logger.info('Routes are being initialized...');
 
-    this.app.use(`/api/v_1/internal`, new ApiController().router);
+    this.app.use(`/api/v_1/internal`, new ApiRouter().router);
 
     this.app.use(`*`, (req, res) => {
       res.status(404).json({ message: 'Route not Found' });
